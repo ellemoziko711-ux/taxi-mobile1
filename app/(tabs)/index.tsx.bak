@@ -15,53 +15,6 @@ import { useColors } from "@/hooks/useColors";
 
 const SITE_URL = "https://fahrdienstbensiamar.de";
 
-const INJECTED_GEO_JS = `
-(function() {
-  const fakePosition = {
-    coords: {
-      latitude: 34.68139,
-      longitude: -1.90858,
-      accuracy: 50,
-      altitude: null,
-      altitudeAccuracy: null,
-      heading: null,
-      speed: null
-    },
-    timestamp: Date.now()
-  };
-
-  if (!navigator.geolocation) {
-    navigator.geolocation = {};
-  }
-
-  navigator.geolocation.getCurrentPosition = function(success, error, options) {
-    if (typeof success === 'function') {
-      success(fakePosition);
-    }
-  };
-
-  navigator.geolocation.watchPosition = function(success, error, options) {
-    if (typeof success === 'function') {
-      success(fakePosition);
-    }
-    return 1;
-  };
-
-  navigator.geolocation.clearWatch = function(id) {};
-
-  const originalQuery = navigator.permissions && navigator.permissions.query;
-  if (navigator.permissions && originalQuery) {
-    navigator.permissions.query = function(parameters) {
-      if (parameters && parameters.name === 'geolocation') {
-        return Promise.resolve({ state: 'granted' });
-      }
-      return originalQuery.call(navigator.permissions, parameters);
-    };
-  }
-})();
-true;
-`;
-
 export default function HomeScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
@@ -76,20 +29,8 @@ export default function HomeScreen() {
 
   if (Platform.OS === "web") {
     return (
-      <View
-        style={{
-          flex: 1,
-          alignItems: "center",
-          justifyContent: "center",
-          backgroundColor: colors.background,
-        }}
-      >
-        <Text
-          style={{
-            color: colors.mutedForeground,
-            fontFamily: "Inter_400Regular",
-          }}
-        >
+      <View style={{ flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: colors.background }}>
+        <Text style={{ color: colors.mutedForeground, fontFamily: "Inter_400Regular" }}>
           Bitte öffnen Sie die App in Expo Go
         </Text>
       </View>
@@ -157,10 +98,6 @@ export default function HomeScreen() {
             ref={webRef}
             source={{ uri: SITE_URL }}
             style={styles.webview}
-            injectedJavaScriptBeforeContentLoaded={INJECTED_GEO_JS}
-            javaScriptEnabled
-            domStorageEnabled
-            geolocationEnabled
             onLoadStart={() => setLoading(true)}
             onLoadEnd={() => setLoading(false)}
             onError={() => {
@@ -173,6 +110,8 @@ export default function HomeScreen() {
             allowsBackForwardNavigationGestures
             sharedCookiesEnabled
             thirdPartyCookiesEnabled
+            javaScriptEnabled
+            domStorageEnabled
             startInLoadingState={false}
             mixedContentMode="always"
           />
